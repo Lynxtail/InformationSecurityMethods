@@ -72,9 +72,9 @@ def init(wd:str=os.getcwd()):
     with open(os.path.split(os.getcwd())[1] + '.pickle', 'wb') as f:
         pickle.dump(hash_table, f)
 
-def main():
-    # init()
-    check_hash_sum()
 
-if __name__ == "__main__":
-    main()
+# при первом запуске использовать только init()
+# init()
+
+# при последующих -- только check_hash_sum()
+# check_hash_sum()
