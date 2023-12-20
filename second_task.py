@@ -1,11 +1,15 @@
 import os, os.path, pickle
 
-ignore_list = ('main.py', 'Zadania_magistram.txt', '.venv', os.path.split(os.getcwd())[1] + '.pickle')
+WD = '/home/lynxtail/Scripts/InformationSecurityMethods/'
+SCRIPT = 'second_task.py'
+HASH_KEEPER = 'second_task.pickle'
+FILE = 'second_task'
+
 
 def xor_for_bytes(b_1:bytes, b_2:bytes):
     return bytes(x ^ y for x, y in zip(b_1, b_2))
 
-def get_hash_sum(item:str=__file__):
+def get_hash_sum(item:str=WD + FILE):
     tmp_dict = dict()
     file_length = os.path.getsize(item)
     with open(item, 'rb') as f:
@@ -18,30 +22,30 @@ def get_hash_sum(item:str=__file__):
     tmp_dict[item] = hash_sum
     return tmp_dict
 
-def check(item:str=__file__):
-    hash_keeper = item.split('/')[-1][:-3] + '.pickle'
+def check(item:str=WD + FILE):
+    # hash_keeper = item.split('/')[-1][-11:] + '.pickle'
+    hash_keeper = HASH_KEEPER
     if hash_keeper in os.listdir():
         with open(hash_keeper, 'rb') as f:
             hash_table = pickle.load(f)
         if hash_table == {item : "000000"}:
+            print("\tIt's a first run")
             with open(hash_keeper, 'wb') as f:
                 hash_table = get_hash_sum()
                 pickle.dump(hash_table, f)
-            print("Hash-sum was calculated after first run")
+            print("\tHash-sum was calculated after first run")
         else:
             hash_table_new = get_hash_sum()
             if hash_table_new == hash_table:
-                print("Nothing changed")
+                print("\tNothing changed")
             else:
                 with open(hash_keeper, 'wb') as f:
                     pickle.dump(hash_table_new, f)
-                print("File has been changed")
+                print("\tFile has been changed")
     else:
-        print("Hash-sum keeper file was not found")
-        print(hash_keeper)
-        print(os.listdir())
+        print("\tHash-sum keeper file was not found:")
+        print(f'\tExpected {hash_keeper} not in {os.listdir()}')
         
 if __name__ == "__main__":
-    # with open(__file__[:-3] + ".pickle", 'wb') as f:
-    #     pickle.dump({__file__:"000000"}, f)
     check()
+    pass
