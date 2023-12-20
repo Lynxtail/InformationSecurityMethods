@@ -4,10 +4,9 @@
 # находит в нем обращение к сетевым функциям. В результате прорамма 
 # дожна автоматически найти все файлы с сетевыми фикциями в указанном каталоге.
 # Поиск функций ведется в секции импорта PE файла.
+import os, pefile
 
-import pefile
-
-network_functions = {
+NETWORK_FUNCTIONS = {
     'DeleteIPAddress',
     'FreeMibTable',
     'GetAdaptersAddresses',
@@ -189,25 +188,38 @@ network_functions = {
     'WNetUseConnection',
     'WNetUseConnectionW'
 }
+EXTENSIONS = {'.acm', '.ax', '.cpl', '.dll', '.drv', '.efi', '.exe', '.mui', '.ocx', '.scr', '.sys', '.tsp', '.mun',
+              '.ACM', '.AX', '.CPL', '.DLL', '.DRV', '.EFI', '.EXE', '.MUI', '.OCX', '.SCR', '.SYS', '.TSP', '.MUN'}
 
-# path = '/home/lynxtail/electronic-workbench.EXE'
-# path = '/media/lynxtail/44B014D7B014D172/Game_distr/A Game of Thrones The Board Game/AGameOfThronesTheBoardGame.exe'
-# path = '/media/lynxtail/44B014D7B014D172/Program Files (x86)/obs-studio/bin/64bit/obs64.exe'
-path = '/media/lynxtail/44B014D7B014D172/Program Files (x86)/Steam/steam.exe'
-pe = pefile.PE(path)
+PATH = '/media/lynxtail/521CF7021CF6DFC1/Program Files/7-Zip'           
 
-# for section in pe.sections:
-#     print(section.Name, hex(section.VirtualAddress), hex(section.Misc_VirtualSize), section.SizeOfRawData)
-
-pe.parse_data_directories()
-pe.get_import_table()
-with open('output.txt', 'w') as f:
+def find_network_functions(path:str=PATH):
+    res = set()
+    pe = pefile.PE(path)
+    # pe.parse_data_directories()
+    # pe.get_import_ort_table()
     for entry in pe.DIRECTORY_ENTRY_IMPORT:
-        # print(str(entry.dll))
-        f.write(f'{str(entry.dll)}\n')
-        for imp in entry.imports:
-            # print('\t', hex(imp.address), str(imp.name))
-            # print('\t', str(imp.name)[2:-1])
-            f.write(f'\t{imp.name} {str(imp.name)[2:-1]}\n')
-            if str(imp.name)[2:-1] in network_functions:
-                print("FOUND!!!!!1")
+        for import_ in entry.imports:
+            if import_.name:
+                func = import_.name.decode()
+                if func in NETWORK_FUNCTIONS:
+                    res.add(func)
+    return res
+
+if __name__ == '__main__':
+    total_files_count = 0
+    files_with_functions_count = 0
+    for root, dirs, files in os.walk(PATH):
+        for file in files:
+            if any(ext in file for ext in EXTENSIONS):
+                total_files_count += 1
+                print(f'Analyze {file}...')
+                res = find_network_functions(os.path.join(root, file))
+                if res:
+                    files_with_functions_count += 1
+                    print(f"Founded functions in {file}:\n")
+                    [print('\t' + item) for item in res]
+                else:
+                    print(f"There is no network functions in {file}")
+                print()
+    print(f"{'-'*50}\nSearch is ended\nTotal files checked: {total_files_count}\nFiles with given functions: {files_with_functions_count}")
