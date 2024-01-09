@@ -1,29 +1,25 @@
-import os, pickle
+import os, json, sys
 
 WD = '/home/lynxtail/Scripts/InformationSecurityMethods/'
 SCRIPT = 'second_task.py'
-FILE = 'second_task'
-HASH_KEEPER = 'second_task.pickle'
+FILE = SCRIPT[:-3] + '.exe'
+HASH_KEEPER = 'second_task.json'
 
-## сборка экзешника
-# os.system(f"pyinstaller --onefile --noconfirm {WD + SCRIPT}")
-# os.system(f"mv {WD}dist/second_task {WD}/")
+# os.system(f"rm {FILE}")
+# os.system(f"rm {FILE[:-4]}.json")
 
-# os.system(f"rm -r {WD}dist")
-# os.system(f"rm -r {WD}build")
-# os.system(f"rm {WD + FILE}.spec")
+# сборка экзешника
+os.system(f"pyinstaller --onefile --distpath . --noconfirm -n {SCRIPT[:-3]}'.exe' {WD + SCRIPT}")
+os.system(f"rm -r {WD}build")
+os.system(f"rm {FILE}.spec")
 
-# os.system(f"rm {WD + FILE}")
-# os.system(f"rm {WD + FILE}.pickle")
 
-## запуск
-# os.system(WD + FILE)
+## создание хранителя хэша
+# with open(HASH_KEEPER, 'w') as f:
+#     f.write(json.dumps({f'./{FILE}' : '000000'}, indent=4, ensure_ascii=False))
 
-# # создание хранителя хэша
-# with open(HASH_KEEPER, 'wb') as f:
-#     pickle.dump({WD + FILE:"000000"}, f)
 
-# # содержимое хранителя хэша
-# with open(HASH_KEEPER, 'rb') as f:
-#     ans = pickle.load(f)
+## содержимое хранителя хэша
+# with open(HASH_KEEPER, 'r') as f:
+#     ans = json.load(f)
 #     print(f'\tHash sum:\n\t\t{ans}')
